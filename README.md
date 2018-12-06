@@ -6,3 +6,6 @@ https://www.raspberrypi-spy.co.uk/2013/06/playing-videos-on-the-raspberry-pi-com
 
 uploading files using github.com/mauckc/ken-flask
 
+```bash 
+FLASK_APP=flaskr.py -h 0.0.0.0
+```
