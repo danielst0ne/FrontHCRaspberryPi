@@ -83,9 +83,9 @@ class Clock(object):
         self.refresh()
         if self.schoolday():
         	if self.classtime():
-        		return 'classtime'
+        		return True
         	else:
-        		return 'passing'
+        		return False
 
 
 
@@ -101,16 +101,18 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 #Default place to go.
 webclock = Clock()
-if webclock.update() == 'classtime':
-    classtime()
-elif webclock.update == 'passing':
-    passing()
+
 @app.route('/')
 def show_entries():
     db = get_db()
     cur = db.execute('select title, text from entries order by id desc')
     entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    classtime = webclock.update()
+    #if webclock.update() == 'classtime':
+     #   classtime = True
+    #elif webclock.update() == 'passing':
+     #   classtime = False
+    return render_template('show_entries.html', entries=entries,classtime=classtime)
 
 def connect_db():
 
@@ -203,6 +205,7 @@ def upload_file():
       <input type=file name=file>
       <input type=submit value=Upload>
     </form>
+<img src="{(url_for('static',filename="uploads/sample.jpg")}></img>
     '''
 
 @app.teardown_appcontext
