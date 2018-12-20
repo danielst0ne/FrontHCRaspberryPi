@@ -5,14 +5,20 @@ from werkzeug.utils import secure_filename
 from flask import send_from_directory
 from flask import Flask, request,Request ,session, g, redirect, url_for, abort, \
      render_template, flash
+from werkzeug import SharedDataMiddleware
 
 app = Flask(__name__) # create the application instance :)
-app.config.from_object(__name__) # load config from this file , flaskr.py
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
+# Create folders if they do not exist
 if not os.path.exists('uploads'):
     os.mkdir('uploads')
+if not os.path.exists('images'):
+    os.mkdir('images')
 
-UPLOAD_FOLDER = 'uploads/'
+#UPLOAD_FOLDER = 'upload/' 
+''' ROSS ADDED THIS LINE 14:31 2018-12-20 '''
+UPLOAD_FOLDER = 'uploads/' 
 ALLOWED_EXTENSIONS = set(['csv','xls','txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
@@ -83,9 +89,9 @@ class Clock(object):
         self.refresh()
         if self.schoolday():
         	if self.classtime():
-        		return 'classtime'
+        		return True
         	else:
-        		return 'passing'
+        		return False
 
 
 
@@ -101,16 +107,18 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 #Default place to go.
 webclock = Clock()
-if webclock.update() == 'classtime':
-    classtime()
-elif webclock.update == 'passing':
-    passing()
+
 @app.route('/')
 def show_entries():
     db = get_db()
     cur = db.execute('select title, text from entries order by id desc')
     entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    classtime = webclock.update()
+    #if webclock.update() == 'classtime':
+     #   classtime = True
+    #elif webclock.update() == 'passing':
+     #   classtime = False
+    return render_template('show_entries.html', entries=entries,classtime=classtime)
 
 def connect_db():
 
@@ -170,32 +178,33 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
-
+"""
 @app.route('/classtime')
 def classtime():
 	return render_template('classtime.html')
 @app.route('/passing')
 def passing():
 	return render_template('passing.html')
-@app.route('/uploads',methods=['GET','POST'])
-def upload_file():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
+"""
+
+@app.route('/upload', methods = ['GET','POST'])
+def upload():
+	if request.method == 'POST':# check if the post request has the file part
+		if 'file' not in request.files:
+			flash('No file part')
+			return redirect(request.url)
+			file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('upload_file',
-                                    filename=filename))
-    return '''
+			if file.filename == '':
+				flash('No selected file')
+				return redirect(request.url)
+			if file and allowed_file(file.filename):
+				filename = secure_filename(file.filename)
+				file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+				#return redirect(url_for('upload_file',filename=filename))
+				return redirect(url_for('upload',filename=filename))
+	return '''
     <!doctype html>
     <title>Upload new File</title>
     <h1>Herler! Upload new File</h1>
@@ -205,6 +214,43 @@ def upload_file():
     </form>
     '''
 
+"""
+	if request.method == 'POST':
+		target = os.path.join(APP_ROOT, 'images/')
+		#target = os.path.join(APP_ROOT, 'static/')
+		print(target)
+		if not os.path.isdir(target):
+			os.mkdir(target)
+		else:
+			print("Couldn't create upload directory: {}".format(target))
+			print(request.files.getlist("file"))
+		for f in request.files.getlist("file"):
+			print(f)
+			print("{} is the file name".format(f.filename))
+			filename = f.filename
+			destination = "/".join((target, filename))
+			print("Accept incoming file:", filename)
+			print("Save it to:", destination)
+			f.save(destination)"""
+    # return send_from_directory("images", filename, as_attachment=True)
+
+''' ROSS ADDED THESE LINE 14:31 2018-12-20 '''
+#@app.route('/upload/<filename>')
+#def uploaded_file(filename):
+#	return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+app.add_url_rule('/upload/<filename>', 'uploaded_file',
+                 build_only=True)
+app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+    '/upload':  app.config['UPLOAD_FOLDER']
+})
+
+
+#@app.route('/upload/<filename>')
+#def send_image(filename):
+#	return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
 @app.teardown_appcontext
 def close_db(error):
     """Closes the database again at the end of the request."""
@@ -213,7 +259,8 @@ def close_db(error):
 
 
 
-
+if __name__ == "__main__":
+    app.run(port=5000, debug=True,host="0.0.0.0")
 
 			
 
