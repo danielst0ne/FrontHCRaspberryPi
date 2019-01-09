@@ -1,50 +1,13 @@
-<script language="JavaScript">
+<!doctype HTML>
+<html lang = "en-US">
 
-
-function number(x) {
-if (x==1) return "one"; if (x==2) return "two"; if (x==3) return "three";
-if (x==4) return "four"; if (x==5) return "five"; if (x==6) return "six";
-if (x==7) return "seven"; if (x==8) return "eight"; if (x==9) return "nine";
-if (x==10) return "ten"; if (x==11) return "eleven"; if (x==12) return "twelve";
-return x; //default
-}
-function ishtime(h,m) {
-h = number(h)
-if (m<=3 || m>57) return h+" o'clock";
-if (m<=7)  return "five past "+h;
-if (m<=12) return "ten past "+h;
-if (m<=17) return "quarter past "+h;
-if (m<=23) return "twenty past "+h;
-if (m<=28) return "twenty-five past "+h;
-if (m<=33) return "half past "+h;
-if (m<=38) return "twenty-five to "+h;
-if (m<=43) return "twenty to "+h;
-if (m<=48) return "quarter to "+h;
-if (m<=53) return "ten to "+h;
-if (m<=58) return "five to "+h;
-return "h:m"; // never reached?
-}
-function daytime(h) {
-if (!h || h>21) return " at night"
-if (h<12) return " in the morning";
-if (h<=17) return " in the afternoon";
-return " in the evening"; // default
-}
-function ish(h,m) {
-if (!h && !m) { // if no time supplied, use the system time
-time = new Date()
-h = time.getHours()
-m = time.getMinutes()
-}
-z = daytime(h);
-h = h % 12 // fix to 12 hour clock
-if (m>57 && time.getSeconds()>30) m++; // round seconds
-if (m>60) m=0 // round up minutes
-if (m>33) h++ // round up hours
-if (h>12)  h = 1 // the clock turns round..
-if (h==0) h = 12
-return "It's now about "+ishtime(h,m)+z+"."
-}
-document.writeln(ish().fontcolor("black"),"<P>")
-
-</script>
+<head>
+</head>
+<body></body>
+<a href="{{url_for('upload_file')}}">upload images here</a>
+<a href="youtube.com/pewdiepie">sub2pewds</a>
+<br>
+If you don't click the link above, I will send a group of 9 year olds to your location to murder you in the most painful way possible. They will look at you, slicing away at your limbs, genitals, organs and whatever else, with a smile. A smile in knowing that you deserve this. A smile knowing that this is the fate of everyone who doesn't subscribe to PewDiePie. And for those who are subscribed to T-Series, you have a whole other thing coming. You will be kidnapped, locked up in a prison and tortured for the rest of your miserable life. You will learn a whole new meaning of the word 'pain'. You will be forced to unsubscribe T-Series, and to subscribe to PewDiePie. This is not a threat, it is a promise. Don't think you can escape the group of 9 year olds. They will find you, no matter where you hide. If this hasn't convinced you to subscribe to PewDiePie, it is your own fault for the situation you are soon be in.
+<br>
+<script src='static/index.js'></script>
+</html>
