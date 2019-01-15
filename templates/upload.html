@@ -1,0 +1,21 @@
+ <!doctype html>
+    <title>Upload new File</title>
+   {% if clock.refresh() %}
+	<h1>It's Classtime!!!</h1>
+    {% else %}
+	<h1>It's Passing Period</h1>
+   {% endif %}
+    <h1>{{clock.clocc}}</h1>
+    <h1>{{ clock.loc }}</h1>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+            <list>
+    {% for item in filelist %}
+
+                <li><a href = "/upload/{{item}}">{{ item }}</a></li>
+
+	{% endfor %}
+			</list>

@@ -1,10 +1,11 @@
 
 <!doctype html>
 <ul>
-{% if clock.classtime %}
+
+{{clock.clocc}}
+{% if clock.refresh() %}
 lol its classtime
 {% else %}
 nah its passing
 
 {% endif %}
-

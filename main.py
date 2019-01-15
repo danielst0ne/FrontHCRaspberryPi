@@ -1,5 +1,8 @@
+import datetime
 from time import localtime
-import os
+from os import listdir
+from os.path import isfile, join
+import os 
 import sqlite3
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
@@ -32,7 +35,7 @@ def allowed_file(filename):
 
 class Clock(object):
 
-    def __init__(self):
+    def refresh(self):
         if localtime()[6] == 0:
             self.day = 'Monday'
         elif localtime()[6] == 1:
@@ -51,12 +54,14 @@ class Clock(object):
             pass
         self.hour = localtime()[3]
         self.minute = localtime()[4]
+	self.loc = datetime.datetime.now()
+	self.clocc = "{}:{}".format(self.hour,self.minute)
         if not self.day == 'Sunday' and not self.day == 'Saturday':
             if self.hour < 19 and self.hour > 8:
                 if self.minute <= 49 and self.hour != 12:
-                    self.classtime = True
+                     return True
                 else:
-                    self.classtime = False
+                    return False
 		
 
 		
@@ -90,33 +95,25 @@ def passing():
 	return render_template('passing.html')
 """
 
-@app.route('/', methods = ['GET','POST'])
+@app.route('/',methods = ['GET','POST'])
 def upload():
+	mypath = "/home/pi/devel/Daniel/flaskr/flaskr/uploads"
+	onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
 	if request.method == 'POST':# check if the post request has the file part
 		if 'file' not in request.files:
 			flash('No file part')
-			return redirect(request.url)
 			file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
 			if file.filename == '':
 				flash('No selected file')
-				return redirect(request.url)
 			if file and allowed_file(file.filename):
 				filename = secure_filename(file.filename)
 				file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-				#return redirect(url_for('upload_file',filename=filename))
-				return redirect(url_for('upload',filename=filename))
-	return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Herler! Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
-
+				return render_template('upload.html',filename=filename,filelist = onlyfiles)
+	return render_template('upload.html',filelist = onlyfiles,clock = webclock)
+	 
 @app.route('/upload/<filename>')
 def uploaded_file(filename):
 	return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
