@@ -20,7 +20,8 @@
   </tr>
   {% for item in filelist %}
 	<tr>
-                <td><a href = "/upload/{{item}}">{{ item }}</a></td>
+                <td><a href = "/upload/{{item}}">{{ item }}</a><button href="{{url_for('localplay',filename = '/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/{{item}}' )}}">PLAY IT</button></td>
+		
 	</tr>
 	{% endfor %}
 </table>

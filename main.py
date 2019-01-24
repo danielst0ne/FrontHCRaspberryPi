@@ -9,6 +9,7 @@ from flask import send_from_directory
 from flask import Flask, request,Request ,session, g, redirect, url_for, abort, \
      render_template, flash
 from werkzeug import SharedDataMiddleware
+from subprocess import call
 
 app = Flask(__name__) # create the application instance :)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -121,11 +122,16 @@ def uploaded_file(filename):
 @app.route('/clock')
 def time():
 	return render_template('clock.html',clock=webclock)
+@app.route('/localplay/<filename>')			
+def localplay(filename):
+	call("ffplay","{}".format(filename))
+	
+	
 if __name__ == "__main__":
     app.run(port=5000, debug=True,host="0.0.0.0")
 
-			
 
+	
 
 
 
