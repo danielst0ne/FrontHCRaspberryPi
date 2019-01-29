@@ -7,12 +7,12 @@ input{
 }
 /* unvisited link */
 a:link {
-  color: black;
+  color: white;
 }
 
 /* visited link */
 a:visited {
-  color: white;
+  color: blue;
 }
 
 /* mouse over link */
@@ -22,13 +22,13 @@ a:hover {
 
 /* selected link */
 a:active {
-  color: blue;
+  color: red;
 }
 th, td {
   border-bottom: 1px solid #ddd;
 }
 td:hover {background-color: #f5f5f5;}
-body {s
+body {
   height: 3000px; /* Used to enable scrolling */
   background: linear-gradient(90deg, black 0%, white 100%);
 }

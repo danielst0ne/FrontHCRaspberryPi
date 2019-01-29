@@ -12,7 +12,7 @@ from werkzeug import SharedDataMiddleware
 from subprocess import call
 
 app = Flask(__name__) # create the application instance :)
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 
 # Create folders if they do not exist
 if not os.path.exists('uploads'):
@@ -25,8 +25,6 @@ if not os.path.exists('images'):
 UPLOAD_FOLDER = 'uploads/' 
 ALLOWED_EXTENSIONS = set(['csv','xls','txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 def allowed_file(filename):
@@ -87,19 +85,18 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 webclock = Clock()
 
 
-"""
-@app.route('/classtime')
-def classtime():
-	return render_template('classtime.html')
-@app.route('/passing')
-def passing():
-	return render_template('passing.html')
-"""
 
-@app.route('/',methods = ['GET','POST'])
+@app.route('/')
+def timecheck():
+	return render_template('index.html')
+		
+
+@app.route('/files',methods = ['GET','POST'])
 def upload():
-	mypath = "/home/pi/devel/Daniel/flaskr/flaskr/uploads"
-	onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+	myvids = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/videos"
+	onlyvids = [f for f in listdir(myvids) if isfile(join(myvids, f))]
+	mypres = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/presentations"
+	onlypres = [f for f in listdir(mypres) if isfile(join(mypres, f))]
 
 	if request.method == 'POST':# check if the post request has the file part
 		if 'file' not in request.files:
@@ -109,22 +106,23 @@ def upload():
         # submit an empty part without filename
 			if file.filename == '':
 				flash('No selected file')
-			if file and allowed_file(file.filename):
-				filename = secure_filename(file.filename)
-				file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-				return render_template('upload.html',filename=filename,filelist = onlyfiles)
-	return render_template('upload.html',filelist = onlyfiles,clock = webclock)
+			if file.filename.startswith("PRESENTATION"):
+				if file and allowed_file(file.filename):
+					filename = secure_filename(file.filename)
+					file.save(os.path.join('uploads/presentations', filename))
+					return render_template('upload.html',filename=filename,vidlist = onlyvids,preslist=onlypres)			
+			else:
+				if file and allowed_file(file.filename):
+					filename = secure_filename(file.filename)
+					file.save(os.path.join('uploads/videos', filename))
+					return render_template('upload.html',filename=filename,vidlist = myvids,preslist=mypres)
+	return render_template('upload.html',vidlist = myvids,preslist=mypres,clock = webclock)
 	 
 @app.route('/upload/<filename>')
 def uploaded_file(filename):
 	return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route('/clock')
-def time():
-	return render_template('clock.html',clock=webclock)
-@app.route('/localplay/<filename>')			
-def localplay(filename):
-	call("ffplay","{}".format(filename))
+
 	
 	
 if __name__ == "__main__":
