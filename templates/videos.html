@@ -1,16 +1,13 @@
- <!doctype html>
+<!doctype HTML>
 <head>
 	<link rel = "stylesheet" type="text/css" href = "static/css/style.css">
 	<title>Upload new File</title>
 </head>
-<body>
-   {% if clock.refresh() %}
-	<h1>It's Classtime!!!</h1>
-    {% else %}
-	<h1>It's Passing Period</h1>
-   {% endif %}
-    
-
+<h1>Upload new video</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
 <table style="width:100%">
   <tr>
     <th>Videos available</th>

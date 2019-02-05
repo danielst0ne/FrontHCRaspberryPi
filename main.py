@@ -22,7 +22,6 @@ if not os.path.exists('images'):
 
 #UPLOAD_FOLDER = 'upload/' 
 ''' ROSS ADDED THIS LINE 14:31 2018-12-20 '''
-UPLOAD_FOLDER = 'uploads/' 
 ALLOWED_EXTENSIONS = set(['csv','xls','txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -93,11 +92,12 @@ def timecheck():
 
 @app.route('/files',methods = ['GET','POST'])
 def upload():
-	myvids = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/videos"
-	onlyvids = [f for f in listdir(myvids) if isfile(join(myvids, f))]
+	
+	return render_template('upload.html',clock = webclock)
+@app.route('/presentations',methods = ['GET','POST'])
+def upload_presentation():
 	mypres = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/presentations"
-	onlypres = [f for f in listdir(mypres) if isfile(join(mypres, f))]
-
+	onlypres = [f for f in listdir(myvids) if isfile(join(myvids, f))]
 	if request.method == 'POST':# check if the post request has the file part
 		if 'file' not in request.files:
 			flash('No file part')
@@ -106,17 +106,29 @@ def upload():
         # submit an empty part without filename
 			if file.filename == '':
 				flash('No selected file')
-			if file.filename.startswith("PRESENTATION"):
-				if file and allowed_file(file.filename):
-					filename = secure_filename(file.filename)
-					file.save(os.path.join('uploads/presentations', filename))
-					return render_template('upload.html',filename=filename,vidlist = onlyvids,preslist=onlypres)			
-			else:
-				if file and allowed_file(file.filename):
-					filename = secure_filename(file.filename)
-					file.save(os.path.join('uploads/videos', filename))
-					return render_template('upload.html',filename=filename,vidlist = myvids,preslist=mypres)
-	return render_template('upload.html',vidlist = myvids,preslist=mypres,clock = webclock)
+			if file and allowed_file(file.filename):
+				filename = secure_filename(file.filename)
+				file.save(os.path.join('uploads/presentations', filename))
+				return render_template('presentations.html',filename=filename,preslist=mypres)
+	return render_template('presentations.html',preslist = mypres,clock=webclock)
+@app.route('/videos',methods = ['GET','POST'])
+def upload_video():
+	myvids = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/videos"
+	onlyvids = [f for f in listdir(myvids) if isfile(join(myvids, f))]
+	if request.method == 'POST':# check if the post request has the file part
+		if 'file' not in request.files:
+			flash('No file part')
+			file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+			if file.filename == '':
+				flash('No selected file')
+			if file and allowed_file(file.filename):
+				filename = secure_filename(file.filename)
+				file.save(os.path.join('uploads/videos', filename))
+				return render_template('videos.html',filename=filename,vidlist = myvids)
+
+	return render_template('videos.html',vidlist = myvids,clock = webclock)
 	 
 @app.route('/upload/<filename>')
 def uploaded_file(filename):
