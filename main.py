@@ -94,23 +94,7 @@ def timecheck():
 def upload():
 	
 	return render_template('upload.html',clock = webclock)
-@app.route('/presentations',methods = ['GET','POST'])
-def upload_presentation():
-	mypres = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/presentations"
-	onlypres = [f for f in listdir(myvids) if isfile(join(myvids, f))]
-	if request.method == 'POST':# check if the post request has the file part
-		if 'file' not in request.files:
-			flash('No file part')
-			file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-			if file.filename == '':
-				flash('No selected file')
-			if file and allowed_file(file.filename):
-				filename = secure_filename(file.filename)
-				file.save(os.path.join('uploads/presentations', filename))
-				return render_template('presentations.html',filename=filename,preslist=mypres)
-	return render_template('presentations.html',preslist = mypres,clock=webclock)
+
 @app.route('/videos',methods = ['GET','POST'])
 def upload_video():
 	myvids = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/videos"
@@ -118,24 +102,17 @@ def upload_video():
 	if request.method == 'POST':# check if the post request has the file part
 		if 'file' not in request.files:
 			flash('No file part')
-			file = request.files['file']
+		file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
-			if file.filename == '':
-				flash('No selected file')
-			if file and allowed_file(file.filename):
+		if file.filename == '':
+			flash('No selected file')
+		if file and allowed_file(file.filename):
 				filename = secure_filename(file.filename)
-				file.save(os.path.join('uploads/videos', filename))
-				return render_template('videos.html',filename=filename,vidlist = myvids)
+				file.save(os.path.join(os.getcwd(),'uploads/videos'),filename)
+				return render_template('videos.html',filename=filename,vidlist = myvids, onlyvids = onlyvids)
 
-	return render_template('videos.html',vidlist = myvids,clock = webclock)
-	 
-@app.route('/upload/<filename>')
-def uploaded_file(filename):
-	return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-	
+	return render_template('videos.html',vidlist = myvids,onlyvids = onlyvids,clock = webclock)
 	
 if __name__ == "__main__":
     app.run(port=5000, debug=True,host="0.0.0.0")
