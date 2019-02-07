@@ -97,7 +97,32 @@ def upload():
 
 @app.route('/videos',methods = ['GET','POST'])
 def upload_video():
-	myvids = "/home/pi/devel/Daniel/FrontHCRaspberryPi/uploads/videos"
+	myvids = "/home/pi/devel/daniel/FrontHCRaspberryPi/uploads/videos/"
+	onlyvids = [f for f in listdir(myvids) if isfile(join(myvids, f))]
+	if webclock.refresh():
+		for video in onlyvids:
+			uploaded_vid(video)
+	if request.method == 'POST':# check if the post request has the file part
+		if 'file' not in request.files:
+			flash('No file part')
+		file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+		if file.filename == '':
+			flash('No selected file')
+		if file and allowed_file(file.filename):
+				filename = secure_filename(file.filename)
+				file.save(os.path.join(os.getcwd(),'uploads/videos/',filename))
+				return render_template('videos.html',filename=filename,vidlist = myvids, onlyvids = onlyvids)
+
+	return render_template('videos.html',vidlist = myvids,onlyvids = onlyvids,clock = webclock)
+@app.route('/upload/videos/<filename>')
+def uploaded_vid(filename):
+	return send_from_directory("/home/pi/devel/daniel/FrontHCRaspberryPi/uploads/videos/", filename)
+
+@app.route('/presentations',methods = ['GET','POST'])
+def upload_presentation():
+	myvids = "/home/pi/devel/daniel/FrontHCRaspberryPi/uploads/presentations/"
 	onlyvids = [f for f in listdir(myvids) if isfile(join(myvids, f))]
 	if request.method == 'POST':# check if the post request has the file part
 		if 'file' not in request.files:
@@ -109,10 +134,14 @@ def upload_video():
 			flash('No selected file')
 		if file and allowed_file(file.filename):
 				filename = secure_filename(file.filename)
-				file.save(os.path.join(os.getcwd(),'uploads/videos'),filename)
-				return render_template('videos.html',filename=filename,vidlist = myvids, onlyvids = onlyvids)
+				file.save(os.path.join(os.getcwd(),'uploads/presentations/',filename))
+				return render_template('presentations.html',filename=filename,preslist = myvids, onlypres = onlyvids)
 
-	return render_template('videos.html',vidlist = myvids,onlyvids = onlyvids,clock = webclock)
+	return render_template('presentations.html',preslist = myvids, onlypres = onlyvids)
+
+@app.route('/upload/presentations/<filename>')
+def uploaded_presentation(filename):
+	return send_from_directory("/home/pi/devel/daniel/FrontHCRaspberryPi/uploads/presentations/", filename)
 	
 if __name__ == "__main__":
     app.run(port=5000, debug=True,host="0.0.0.0")

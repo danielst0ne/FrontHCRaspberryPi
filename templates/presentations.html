@@ -12,9 +12,9 @@
   <tr>
     <th>Presentations available</th>
   </tr>
-  {% for item in preslist %}
+  {% for item in onlypres %}
 	<tr>
-                <td><a href = "/upload/presentations{{item}}">{{ item }}</a></td>
+                <td><a href = "/upload/presentations/{{item}}">{{ item }}</a></td>
 		
 	</tr>
 	{% endfor %}
